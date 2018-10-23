@@ -103,7 +103,7 @@ if ($uuid != "-1") {
 	$data = str_replace('*','','{"uuid":'.$uuid.
 			',"round":'.$round.
 			',"aiDirections":"'.$aiDirections.
-			'","name":"'.$name.
+			'","name":"'.stripslashes($name).
 			'","dateTime":"'.$dateTime.
 			'","score":'.$score.
 			',"aiTimerMax":'.$aiTimerMax.
