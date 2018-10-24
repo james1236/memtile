@@ -112,7 +112,7 @@ RIGHT = 39;
 SPACE = 32;
 R = 82;
 
-var hover = {"restart":false,"play":false,"color":false,"leaderboard":false,"confirmName":false,"rename":false,"tutorial":false,"menu":false,"rate":false,"star":false};
+var hover = {"restart":false,"play":false,"color":false,"leaderboard":false,"confirmName":false,"rename":false,"tutorial":false,"menu":false,"rate":false,"star":false,"showAll":false};
 var player = {x:1,y:1}
 var pos = [{x:1,y:1}];
 
@@ -455,7 +455,7 @@ function displayUi() {
 				
 				//Find place of player score
 				vc2 = 0;
-				for (i = leaderboardScores.length-1; i > max; i--) {
+				for (i = leaderboardScores.length-1; i > -1; i--) {
 					if (placeTracker[i] != -1) {
 						break;
 					}
@@ -498,6 +498,26 @@ function displayUi() {
 					context.fillText(data.score+"",250,130+(20*vc)+13);
 				}
 			}
+			
+			//draw show all button
+			context.fillStyle = colors["button"];
+		
+			//button
+			context.globalAlpha = 0.2;
+			roundRect(292, 368, 35, 20, 5, true, false);
+			
+			if (hover["showAll"]) {
+				context.globalAlpha = 0.1;
+				context.fillStyle = "#000000";
+				roundRect(292, 368, 35, 20, 5, true, false);
+			}
+
+			context.globalAlpha = 1;
+			
+			//text
+			context.font="italic 13px Arial";
+			context.fillStyle = colors["button"];
+			context.fillText("all", 310, 382);
 		}
 		
 		//Rate
@@ -550,7 +570,7 @@ function displayUi() {
 			context.font="italic 16px Arial";
 			context.globalAlpha = 0.5;
 			context.textAlign = "right";
-			context.fillText("of "+leaderboardScores.length,308,368);
+			context.fillText("of "+leaderboardScores.length,308,364);
 			context.textAlign = "center";
 		}
 	}
@@ -593,6 +613,26 @@ function displayUi() {
 					vc++;
 				}
 			}
+			
+			//draw show all button
+			context.fillStyle = colors["button"];
+		
+			//button
+			context.globalAlpha = 0.2;
+			roundRect(292, 368, 35, 20, 5, true, false);
+			
+			if (hover["showAll"]) {
+				context.globalAlpha = 0.1;
+				context.fillStyle = "#000000";
+				roundRect(292, 368, 35, 20, 5, true, false);
+			}
+
+			context.globalAlpha = 1;
+			
+			//text
+			context.font="italic 13px Arial";
+			context.fillStyle = colors["button"];
+			context.fillText("all", 310, 382);
 		}
 
 		if (leaderboardScores) {
@@ -600,7 +640,7 @@ function displayUi() {
 			context.font="italic 16px Arial";
 			context.globalAlpha = 0.5;
 			context.textAlign = "right";
-			context.fillText("of "+leaderboardScores.length,308,368);
+			context.fillText("of "+leaderboardScores.length,308,364);
 			context.textAlign = "center";
 		}
 	}
@@ -1137,6 +1177,28 @@ $(canvas)
 		if (hover["tutorial"] && !menu) {
 			//Redacted
 		}
+	
+		if (hover["showAll"]) {
+			//onclick "all" button
+			vi = 0;
+			leaderboardAllText = "";
+			for (i = leaderboardScores.length-1; i > -1; i--) {
+				leaderboardAllText+=(vi+1)+" : "+leaderboardNames[i]+" = "+leaderboardScores[i]+"<br>";
+				vi++
+			}
+		
+			document.body.innerHTML = "";
+			var div = document.createElement("div");
+			div.style.position = "fixed";
+			div.style.top = "0px";
+			div.style.left = "0px";
+			div.style.width = "100%";
+			div.style.height = "100%";
+			div.style.overflow = "scroll";
+			div.style.overflowX = "hidden";
+			div.innerHTML = leaderboardAllText;
+			document.body.appendChild(div);
+		}
 	})
 	
 	.bind('touchend mouseup',function(e){
@@ -1210,6 +1272,12 @@ $(canvas)
 			hover["menu"] = true;
 		} else {
 			hover["menu"] = false;
+		}
+	
+		if (mouseCollide(292, 368, 35, 20)) {
+			hover["showAll"] = true;
+		} else {
+			hover["showAll"] = false;
 		}
 		
 		
