@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Mem Tile (Popup Game)",
 	"short_name": "Mem Tile",
-	"version": "1.12.3",
+	"version": "1.14.1",
 
 	"description": "Memory Based Tile Sliding Game",
 	"icons": {

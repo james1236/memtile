@@ -85,7 +85,9 @@ var iconPos = {
 	"star":[9+10,69+10+(80*3)],
 	"tutorial":[69+30,69+10],
 	"leaderboard":[9+10,69+10+80],
-	"rename":[9+10,69+10+(80*2)]
+	"rename":[9+10,69+10+(80*2)],
+	"at":[69+30,69+10+(80*1)],
+	"plus":[69+30,69+10+(80*2)]
 }
 
 
@@ -272,59 +274,15 @@ function icons() {
 	if (!menu) {
 		return;
 	}
-
-	//Color
-	if (hover["color"]) {
-		context.globalAlpha = 0.15;
-	} else {
-		context.globalAlpha = 0.1;
-	}
-	var img=document.getElementById("color");
-	context.drawImage(img,iconPos["color"][0],iconPos["color"][1],50,50);
-	context.globalAlpha = 1;	
 	
-	//Color
-	if (hover["star"]) {
-		context.globalAlpha = 0.15;
-	} else {
-		context.globalAlpha = 0.1;
-	}
-	var img=document.getElementById("star");
-	context.drawImage(img,iconPos["star"][0],iconPos["star"][1],50,50);
-	context.globalAlpha = 1;
-	
-	//Leaderboard
-	if (hover["leaderboard"]) {
-		context.globalAlpha = 0.15;
-	} else {
-		context.globalAlpha = 0.1;
-	}
-
-	var img=document.getElementById("leaderboard");
-	context.drawImage(img,iconPos["leaderboard"][0],iconPos["leaderboard"][1],50,50);
-	context.globalAlpha = 1;		
-	
-	//Rename
-	if (hover["rename"]) {
-		context.globalAlpha = 0.15;
-	} else {
-		context.globalAlpha = 0.1;
-	}
-
-	var img=document.getElementById("rename");
-	context.drawImage(img,iconPos["rename"][0],iconPos["rename"][1],50,50);
-	context.globalAlpha = 1;	
-	
-	//Tutorial
-	if (hover["tutorial"]) {
-		context.globalAlpha = 0.15;
-	} else {
-		context.globalAlpha = 0.1;
-	}
-
-	var img=document.getElementById("tutorial");
-	context.drawImage(img,iconPos["tutorial"][0],iconPos["tutorial"][1],50,50);
-	context.globalAlpha = 1;
+	//Icons
+	iconDisplay("color");
+	iconDisplay("leaderboard");
+	iconDisplay("rename");
+	iconDisplay("star");
+	iconDisplay("tutorial");
+	iconDisplay("at");
+	iconDisplay("plus");
 	
 	//Close
 	context.globalAlpha = 0.10;
@@ -365,9 +323,17 @@ function icons() {
 	if (hover["star"]) {
 		text = "Please Rate!";
 		size = 73;
+	}	
+	if (hover["at"]) {
+		text = "Contact";
+		size = 47;
+	}	
+	if (hover["plus"]) {
+		text = "More Games";
+		size = 74;
 	}
 	
-	if (hover["color"] || hover["tutorial"] || hover["rename"] || hover["leaderboard"] || hover["star"]) {
+	if (hover["color"] || hover["tutorial"] || hover["rename"] || hover["leaderboard"] || hover["star"] || hover["at"] || hover["plus"]) {
 		if (hover["star"]) {
 			jiggle = globalTimer % 3;
 		} else {
@@ -394,6 +360,18 @@ function icons() {
 		context.fillText(text, mouseX+2+jiggle, mouseY-6);
 		context.textAlign = "center";
 	}
+}
+
+function iconDisplay(icoName) {
+	if (hover[icoName]) {
+		context.globalAlpha = 0.15;
+	} else {
+		context.globalAlpha = 0.1;
+	}
+
+	var img=document.getElementById(icoName);
+	context.drawImage(img,iconPos[icoName][0],iconPos[icoName][1],50,50);
+	context.globalAlpha = 1;
 }
 
 
@@ -572,6 +550,7 @@ function displayUi() {
 			context.textAlign = "right";
 			context.fillText("of "+leaderboardScores.length,308,364);
 			context.textAlign = "center";
+			
 		}
 	}
 	
@@ -643,6 +622,7 @@ function displayUi() {
 			context.fillText("of "+leaderboardScores.length,308,364);
 			context.textAlign = "center";
 		}
+		
 	}
 	
 	//No save leaderboard
@@ -1103,6 +1083,14 @@ $(canvas)
 		if (hover["star"] && !ui && !deathAnimation && menu) {
 			menu = false;
 			window.open("https://chrome.google.com/webstore/detail/mem-tile-popup-game/pejfmibchmbdoianjkkglffodmgegiak");
+		}			
+		if (hover["at"] && !ui && !deathAnimation && menu) {
+			menu = false;
+			window.open("mailto:james.app1236@gmail.com");
+		}				
+		if (hover["plus"] && !ui && !deathAnimation && menu) {
+			menu = false;
+			window.open("moregames/moreGames.html");
 		}		
 		if (hover["tutorial"] && !ui && !deathAnimation && menu) {
 			ui = 5;
@@ -1174,10 +1162,6 @@ $(canvas)
 			}
 		}
 		
-		if (hover["tutorial"] && !menu) {
-			//Redacted
-		}
-	
 		if (hover["showAll"]) {
 			//onclick "all" button
 			vi = 0;
@@ -1198,6 +1182,10 @@ $(canvas)
 			div.style.overflowX = "hidden";
 			div.innerHTML = leaderboardAllText;
 			document.body.appendChild(div);
+		}
+		
+		if (hover["tutorial"] && !menu) {
+			//Redacted
 		}
 	})
 	
@@ -1227,40 +1215,19 @@ $(canvas)
 			hover["play"] = false;
 		}
 
-		if (mouseCollide(iconPos["color"][0],iconPos["color"][1],50,50)) {
-			hover["color"] = true;
-		} else {
-			hover["color"] = false;
-		}			
+		hoverIcon("color");
+		hoverIcon("leaderboard");
+		hoverIcon("rename");
+		hoverIcon("star");
+		hoverIcon("tutorial");
+		hoverIcon("at");
+		hoverIcon("plus");
 		
-		if (mouseCollide(iconPos["star"][0],iconPos["star"][1],50,50)) {
-			hover["star"] = true;
-		} else {
-			hover["star"] = false;
-		}
 		if (mouseCollide(10, 345, 35, 35)) {
 			hover["rate"] = true;
 		} else {
 			hover["rate"] = false;
 		}		
-		
-		if (mouseCollide(iconPos["leaderboard"][0],iconPos["leaderboard"][1],50,50)) {
-			hover["leaderboard"] = true;
-		} else {
-			hover["leaderboard"] = false;
-		}		
-		
-		if (mouseCollide(iconPos["rename"][0],iconPos["rename"][1],50,50)) {
-			hover["rename"] = true;
-		} else {
-			hover["rename"] = false;
-		}		
-		
-		if (mouseCollide(iconPos["tutorial"][0],iconPos["tutorial"][1],50,50)) {
-			hover["tutorial"] = true;
-		} else {
-			hover["tutorial"] = false;
-		}
 
 		if (mouseCollide(124,240,80,35)) {
 			hover["nameConfirm"] = true;
@@ -1273,18 +1240,25 @@ $(canvas)
 		} else {
 			hover["menu"] = false;
 		}
-	
+		
 		if (mouseCollide(292, 368, 35, 20)) {
 			hover["showAll"] = true;
 		} else {
 			hover["showAll"] = false;
 		}
 		
-		
 	});
 	
 	$('body').on('contextmenu', '#myCanvas', function(e){ return false; });
 
+function hoverIcon(icoName) {
+	if (mouseCollide(iconPos[icoName][0],iconPos[icoName][1],50,50)) {
+		hover[icoName] = true;
+	} else {
+		hover[icoName] = false;
+	}
+}
+	
 function mouseCollide(x,y,width,height) {
 	if (height == undefined) {
 		height = width;
@@ -1301,7 +1275,6 @@ function postScore() {
 	
 	dNow = new Date();
 	
-	//Post information to highscore checker with information about the game that the anticheat can check
 	var xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "http://james1236.000webhostapp.com/submitScore.php", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -1384,7 +1357,6 @@ function getScore() {
 function counter() {
 	dNow = new Date();
 	
-	//Rudimentary page load counter
 	var xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "http://james1236.000webhostapp.com/submitScore.php", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
