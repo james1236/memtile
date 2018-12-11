@@ -25,6 +25,7 @@ if (!isset($_POST[$uuidName])) {
 	die('Leaderboard Unavailable (isset)');
 }
 $uuid = str_replace('*','',htmlspecialchars($_POST[$uuidName]));
+$name = str_replace('*','',htmlspecialchars($_POST[$nameName]));
 $aiDirections = str_replace('*','',htmlspecialchars($_POST[$aiDirectionsName]));
 $dateTime = str_replace('*','',htmlspecialchars($_POST[$dateTimeName]));
 
@@ -239,8 +240,9 @@ function validate($type, $var = "", $ban = true) {
 		}
 	}
 	if ($type == 'name') {
-		if (strlen($name) > 10) {
-			die('Leaderboard Unavailable (change name)');
+		$name = str_replace('\\', '/', $name);
+		if (strlen($name) > 20) {
+			die('Leaderboard Unavailable (name too long)');
 		}
 		if (strlen($name)  == 0) {
 			die('Leaderboard Unavailable (change name)');
