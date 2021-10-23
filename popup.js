@@ -46,13 +46,12 @@ var ui = 0;
 
 var score = 0;
 
-//Localstorage names were obfuscated to avoid people changing their highscore and such
 if (localStorage.getItem("z2914") == undefined) {
 	localStorage.setItem("z2914", 0);
 }
 if (localStorage.getItem("z1757") == undefined || localStorage.getItem("z1757") == "" || localStorage.getItem("z1757") == "null" || localStorage.getItem("z1757") == null) {
 	ui = 1;
-	setTimeout(function () {$("#nameMemTile").show()}, 10);
+	setTimeout(function () {$("#nameMemTile").show(); document.getElementById("nameMemTile").focus(); document.getElementById("nameMemTile").select();}, 10);
 } else {
 	var name = localStorage.getItem("z1757");
 }
@@ -63,6 +62,15 @@ if (localStorage.getItem("z0564") == undefined) {
 		uuid = "0"+uuid;
 	}
 	localStorage.setItem("z0564", uuid);
+}
+
+var muted;
+if (localStorage.getItem("mute") == undefined) {
+	localStorage.setItem("mute", 0);
+	muted = false;
+}
+if (localStorage.getItem("mute") == 1) {
+	muted = true;
 }
 
 var highscore = localStorage.getItem("z2914");
@@ -87,7 +95,8 @@ var iconPos = {
 	"leaderboard":[9+10,69+10+80],
 	"rename":[9+10,69+10+(80*2)],
 	"at":[69+30,69+10+(80*1)],
-	"plus":[69+30,69+10+(80*2)]
+	"plus":[69+30,69+10+(80*2)],
+	"mute":[69+30,69+10+(80*3)]
 }
 
 
@@ -113,6 +122,28 @@ LEFT = 37;
 RIGHT = 39;
 SPACE = 32;
 R = 82;
+ENTER = 13;
+
+W = 87;
+A = 65;
+S = 83;
+D = 68;
+
+//Load SFX
+var sounds = {}
+sounds[LEFT] = new Audio("slideB.wav");
+sounds[DOWN] = new Audio("slideC.wav");
+sounds[RIGHT] = new Audio("slideD.wav");
+sounds[UP] = new Audio("slideE.wav");
+sounds[LEFT+50] = new Audio("slideBp.wav");
+sounds[DOWN+50] = new Audio("slideCp.wav");
+sounds[RIGHT+50] = new Audio("slideDp.wav");
+sounds[UP+50] = new Audio("slideEp.wav");
+sounds[LEFT+100] = new Audio("slideBl.wav");
+sounds[DOWN+100] = new Audio("slideCl.wav");
+sounds[RIGHT+100] = new Audio("slideDl.wav");
+sounds[UP+100] = new Audio("slideEl.wav");
+sounds["button"] = new Audio("button.wav");
 
 var hover = {"restart":false,"play":false,"color":false,"leaderboard":false,"confirmName":false,"rename":false,"tutorial":false,"menu":false,"rate":false,"star":false,"showAll":false};
 var player = {x:1,y:1}
@@ -283,6 +314,7 @@ function icons() {
 	iconDisplay("tutorial");
 	iconDisplay("at");
 	iconDisplay("plus");
+	iconDisplay("mute");
 	
 	//Close
 	context.globalAlpha = 0.10;
@@ -330,10 +362,14 @@ function icons() {
 	}	
 	if (hover["plus"]) {
 		text = "More Games";
-		size = 74;
+		size = 73;
+	}	
+	if (hover["mute"]) {
+		text = "Mute Sound";
+		size = 69;
 	}
 	
-	if (hover["color"] || hover["tutorial"] || hover["rename"] || hover["leaderboard"] || hover["star"] || hover["at"] || hover["plus"]) {
+	if (hover["color"] || hover["tutorial"] || hover["rename"] || hover["leaderboard"] || hover["star"] || hover["at"] || hover["plus"] || hover["mute"]) {
 		if (hover["star"]) {
 			jiggle = globalTimer % 3;
 		} else {
@@ -389,6 +425,18 @@ function displayUi() {
 	
 	//Name
 	if (ui == 1) {
+		context.fillStyle = "#444";
+		context.globalAlpha = 0.8;
+		if (hover["skip"]) {
+			context.globalAlpha = 1;
+			context.fillStyle = "#000";
+		}
+		
+		context.font="italic 14px Arial";
+		context.fillText("skip",280,350);
+		roundRect(260,335,40,20);
+		context.globalAlpha = 1;
+		
 		context.fillStyle = "#333";
 		context.font="18px Arial";
 		context.fillText("Enter your name",164,150);
@@ -541,6 +589,8 @@ function displayUi() {
 			context.fillStyle = colors["newHigh"];
 
 			context.fillText(text, mouseX+2+jiggle, mouseY-6);
+			
+			context.textAlign = "center";
 		}
 		
 		if (leaderboardScores) {
@@ -662,7 +712,7 @@ function displayUi() {
 		context.fillText("Try and copy the movement of the tile.",45,160);
 		context.fillText("Press the play button to show the sequence",45,175);
 		context.fillText("and once it's finished, use the arrow",45,190);
-		context.fillText("keys to copy it",45,205);
+		context.fillText("keys (or WASD) to copy it",45,205);
 		
 		context.fillStyle = "#333";
 		context.globalAlpha = 0.5;
@@ -810,7 +860,7 @@ function grid() {
 
 function die(saveGame) {
 	globalTimer = 0;
-	
+
 	if (score == highscore && score > 5 && saveGame == undefined && !denyPost) {
 		postScore();
 		ui = 2;
@@ -877,6 +927,14 @@ function play() {
 	}
 }
 
+function playButtonSound() {
+	if (!muted) {
+		sound = sounds["button"].cloneNode(true);
+		sound.volume = 0.3;
+		sound.play();
+	}
+}
+
 function reload() {
 	if (ui || deathAnimation || keysPressed.length) {
 		menu = false;
@@ -904,23 +962,27 @@ function reload() {
 		play();
 	}
 	
+	if (ui == 1 && keysPressed[ENTER]) {
+		confirmTheName();
+	}
+	
 	//Setting initial direction
 	newAnimation = false;
 	
 	if (!ai && !deathAnimation && !ui) {
-		if (keysPressed[UP] && !moveTimer && player.y != 0) {
+		if ((keysPressed[UP] || keysPressed[W]) && !moveTimer && player.y != 0) {
 			player.direction = UP;
 			newAnimation = true;
 		}
-		if (keysPressed[DOWN] && !moveTimer && player.y != 3) {
+		if ((keysPressed[DOWN] || keysPressed[S]) && !moveTimer && player.y != 3) {
 			player.direction = DOWN;
 			newAnimation = true;
 		}
-		if (keysPressed[LEFT] && !moveTimer && player.x != 0) {
+		if ((keysPressed[LEFT] || keysPressed[A]) && !moveTimer && player.x != 0) {
 			player.direction = LEFT;
 			newAnimation = true;
 		}
-		if (keysPressed[RIGHT] && !moveTimer && player.x != 3) {
+		if ((keysPressed[RIGHT] || keysPressed[D]) && !moveTimer && player.x != 3) {
 			player.direction = RIGHT;
 			newAnimation = true;
 		}
@@ -963,6 +1025,19 @@ function reload() {
 				score--;
 				die();
 			}
+		}
+		
+		//Play sound for direction
+		if (!muted) {
+			sound = sounds[player.direction];
+			if (deathAnimation == 100) {
+				sound = sounds[player.direction+100];
+			} else if (!ai) {
+				sound = sounds[player.direction+50];
+			}
+			sound = sound.cloneNode(true);
+			sound.volume = 0.3;
+			sound.play();
 		}
 	}
 	
@@ -1032,6 +1107,35 @@ window.addEventListener("keydown",
 	},
 false);
 
+function mute() {
+	muted = !muted;
+	if (muted) {
+		localStorage.setItem("mute", 1);
+	} else {
+		localStorage.setItem("mute", 0);
+	}
+}
+
+function confirmTheName() {
+	thename = document.getElementById("nameMemTile").value;
+	if (hover["skip"]) {
+		if (localStorage.getItem("z1757") == undefined || localStorage.getItem("z1757") == "" || localStorage.getItem("z1757") == "null" || localStorage.getItem("z1757") == null) {
+			thename = "Player";
+		} else {
+			thename = localStorage.getItem("z1757");
+		}
+	}
+	if (thename.length > 0) {
+		playButtonSound();
+		hideUi();
+		if (localStorage.getItem("z1757") == undefined || localStorage.getItem("z1757") == "" || localStorage.getItem("z1757") == "null" || localStorage.getItem("z1757") == null) {
+			ui = 5;
+		}
+		localStorage.setItem("z1757",thename);
+		name = localStorage.getItem("z1757");
+	}
+}
+
 //Mouse Input
 $(canvas)
 	.bind('touchstart mousedown',function(e){
@@ -1045,22 +1149,27 @@ $(canvas)
 		}
 	
 		if (hover["restart"] && !deathAnimation && !ui) {
+			playButtonSound();
 			die();
 		} else {
 			if (hover["restart"] && !deathAnimation && ui != 1) {
+				playButtonSound();
 				hideUi();
 			}
 			//Allow backing out of name menu if name is already defined
 			if (hover["restart"] && !deathAnimation && ui == 1 && !(localStorage.getItem("z1757") == undefined || localStorage.getItem("z1757") == "" || localStorage.getItem("z1757") == "null" || localStorage.getItem("z1757") == null)) {
+				playButtonSound();
 				hideUi();
 			}
 		}
 		
 		if (hover["play"] && !ai && pos.length == 1 && !deathAnimation && !ui) {
+			playButtonSound();
 			play();
 		}		
 		
 		if (hover["color"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			if (JSON.stringify(colors) == JSON.stringify(defaultColors)) {
 				generatePallete();
 				localStorage.setItem("z8487", JSON.stringify(colors));
@@ -1071,56 +1180,66 @@ $(canvas)
 		}		
 		
 		if (hover["leaderboard"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			getScore();
 			ui = 3;
 			menu = false;
+		}				
+		if (hover["mute"] && !ui && !deathAnimation && menu) {
+			mute();
+			ui = 0;
+			menu = false;
 		}		
 		if (hover["rename"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			ui = 1;
+			document.getElementById("nameMemTile").value = localStorage.getItem("z1757");
 			menu = false;
-			setTimeout(function () {$("#nameMemTile").show()}, 10);
+			setTimeout(function () {$("#nameMemTile").show(); document.getElementById("nameMemTile").focus(); document.getElementById("nameMemTile").select();}, 10);
 		}			
 		if (hover["star"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			menu = false;
 			window.open("https://chrome.google.com/webstore/detail/mem-tile-popup-game/pejfmibchmbdoianjkkglffodmgegiak");
 		}			
 		if (hover["at"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			menu = false;
 			window.open("mailto:james.app1236@gmail.com");
 		}				
 		if (hover["plus"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			menu = false;
 			window.open("moregames/moreGames.html");
 		}		
 		if (hover["tutorial"] && !ui && !deathAnimation && menu) {
+			playButtonSound();
 			ui = 5;
 			menu = false;
 		}		
 		if (hover["menu"] && !ui && !deathAnimation && !menu) {
+			playButtonSound();
 			menu = true;
 		} else {
 			if (hover["menu"] && !ui && !deathAnimation && menu) {
+				playButtonSound();
 				menu = false;
 			}
 		}
 		
 		if (hover["menu"] && ui == 5) {
+			playButtonSound();
 			ui = 0;
-			setTimeout(function(){menu = true;},10);
+			//setTimeout(function(){menu = true;},10);
 		}
 		
-		if (hover["nameConfirm"]) {
-			if (document.getElementById("nameMemTile").value.length > 0) {
-				hideUi();
-				if (localStorage.getItem("z1757") == undefined || localStorage.getItem("z1757") == "" || localStorage.getItem("z1757") == "null" || localStorage.getItem("z1757") == null) {
-					ui = 5;
-				}
-				localStorage.setItem("z1757",document.getElementById("nameMemTile").value);
-				name = localStorage.getItem("z1757");
-			}
+		if (hover["nameConfirm"] || hover["skip"]) {
+			confirmTheName();
 		}
 		
 		if (hover["rate"] && ui == 2) {
+			playButtonSound();
+			
 			//Rate Button
 			window.open("https://chrome.google.com/webstore/detail/mem-tile-popup-game/pejfmibchmbdoianjkkglffodmgegiak");
 		}
@@ -1163,6 +1282,8 @@ $(canvas)
 		}
 		
 		if (hover["showAll"]) {
+			playButtonSound();
+			
 			//onclick "all" button
 			vi = 0;
 			leaderboardAllText = "";
@@ -1185,7 +1306,18 @@ $(canvas)
 		}
 		
 		if (hover["tutorial"] && !menu) {
-			//Redacted
+			if (eeS == 4 && eeT > 1) {
+				map = {"61616b":[14,16,23,15,28,48,1,4,25,2,28,82,23,21,12,2,56,4,8,7],"c9eb9a":[72,4,2,1,3,6,36,23,2,34,7,18,6,3,90,50,1,3,6,2,7,8,9],"5b1f8f":["m","C","s","v","J","l","H","e","S","q","a","X","L","z","n","p","M","D","w","y","r","m"," "],"761802":[5,1,2,7,8,9,4,3,0,6],"e991db":[8,7,4,5,2,0,3,1,2,9],"09bd96":[[0,16,23,15,28,48,1,4,25,2,28,82,23,21,12,2,56,4,8,7],[72,4,2,1,3,6,36,23,2,34,7,18,6,3,90,50,1,3,6,2,7,8,9],[[14,16,23,15,28,48,1,4,25,2,28,82,23,21,12,2,56,4,8,7],[72,4,2,1,3,6,36,23,2,34,7,18,6,3,90,50,1,3,6,2,7,8,9],[[5,1,2,7,8,9,4,3,0,6],[8,7,4,5,2,0,3,1,2,9]]]]}
+				
+				score = map["5b1f8f"][map["761802"][6]] + map["5b1f8f"][map["09bd96"][map["e991db"][7]][map["61616b"][14]+2]/9] + map["5b1f8f"][map["c9eb9a"][map["61616b"][3]]/[map["c9eb9a"][3]]-map["61616b"][5]-2] + map["5b1f8f"][map["761802"][map["c9eb9a"][1]-[map["09bd96"][map["761802"][0][map["61616b"][6]]]]]-1];
+				
+				score += map["5b1f8f"][map["e991db"][score.indexOf("q")+3]/4+1] + map["5b1f8f"][map["09bd96"][1][map["c9eb9a"][12]] % 26 + map["5b1f8f"].indexOf("q") + map["761802"][7]] + map["5b1f8f"][map["c9eb9a"][map["761802"][map["09bd96"][0][0]]]];
+
+				setTimeout(function () {score = 0}, 5000);
+			} else {
+				eeS = 0;
+				eeT = 0;
+			}
 		}
 	})
 	
@@ -1214,6 +1346,12 @@ $(canvas)
 		} else {
 			hover["play"] = false;
 		}
+		
+		if (mouseCollide(260,335,40,20)) {
+			hover["skip"] = true;
+		} else {
+			hover["skip"] = false;
+		}
 
 		hoverIcon("color");
 		hoverIcon("leaderboard");
@@ -1222,6 +1360,7 @@ $(canvas)
 		hoverIcon("tutorial");
 		hoverIcon("at");
 		hoverIcon("plus");
+		hoverIcon("mute");
 		
 		if (mouseCollide(10, 345, 35, 35)) {
 			hover["rate"] = true;
@@ -1276,7 +1415,7 @@ function postScore() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "http://james1236.000webhostapp.com/submitScore.php", true);
+	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("z1981="+round+
 				"&z5649="+JSON.stringify(aiDirections).replace('"',"").split("[")[1].replace('"',"").split("]")[0].replace('"',"")+
@@ -1321,7 +1460,7 @@ function getScore() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "http://james1236.000webhostapp.com/submitScore.php", true);
+	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("z9800=-1");
 
@@ -1358,7 +1497,7 @@ function counter() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "http://james1236.000webhostapp.com/submitScore.php", true);
+	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("z9800="+localStorage.getItem("z0564")+"&z5649=-2&z7613="+escape(dNow.getDate() + '/' + dNow.getMonth() + '/' + dNow.getFullYear() + ' ' + dNow.getHours() + ':' + dNow.getMinutes()));
 }
@@ -1448,8 +1587,6 @@ function getLuma(hex) {
 
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
-
-//Redacted
 
 function quickSort(items, left, right) {
     var index;
