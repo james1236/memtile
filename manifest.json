@@ -1,8 +1,8 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "Mem Tile (Popup Game)",
 	"short_name": "Mem Tile",
-	"version": "1.16",
+	"version": "1.16.2",
 
 	"description": "Memory Based Tile Sliding Game",
 	"icons": {
@@ -12,15 +12,12 @@
 	},
 	"offline_enabled": true,
 
-	"browser_action": {
+	"action": {
 		"default_title": "Mem Tile",
 		"default_icon": {
 			"19": "icon_19.png",
 			"38": "icon_38.png"
 		},
 		"default_popup": "popup.html"
-	},
-
-
-	"permissions": ["https://james1236.online/*"]
+	}
 }

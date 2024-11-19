@@ -1415,16 +1415,16 @@ function postScore() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("z1981="+round+
-				"&z5649="+JSON.stringify(aiDirections).replace('"',"").split("[")[1].replace('"',"").split("]")[0].replace('"',"")+
-				"&z6066="+escape(name)+
-				"&z7613="+escape(dNow.getDate() + '/' + dNow.getMonth() + '/' + dNow.getFullYear() + ' ' + dNow.getHours() + ':' + dNow.getMinutes())+
-				"&z0274="+score+
-				"&z1092="+aiTimerMax+
-				"&z9800="+localStorage.getItem("z0564")
-	);
+	// xhttp.open("POST", "no url", true);
+	// xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	// xhttp.send("z1981="+round+
+	// 			"&z5649="+JSON.stringify(aiDirections).replace('"',"").split("[")[1].replace('"',"").split("]")[0].replace('"',"")+
+	// 			"&z6066="+escape(name)+
+	// 			"&z7613="+escape(dNow.getDate() + '/' + dNow.getMonth() + '/' + dNow.getFullYear() + ' ' + dNow.getHours() + ':' + dNow.getMinutes())+
+	// 			"&z0274="+score+
+	// 			"&z1092="+aiTimerMax+
+	// 			"&z9800="+localStorage.getItem("z0564")
+	// );
 	response = false;
 
 	//Load leaderboard data
@@ -1460,9 +1460,9 @@ function getScore() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("z9800=-1");
+	// xhttp.open("POST", "no url", true);
+	// xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	// xhttp.send("z9800=-1");
 
 	response = false;
 
@@ -1497,9 +1497,9 @@ function counter() {
 	dNow = new Date();
 	
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "https://james1236.online/submitScore.php", true);
-	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xhttp.send("z9800="+localStorage.getItem("z0564")+"&z5649=-2&z7613="+escape(dNow.getDate() + '/' + dNow.getMonth() + '/' + dNow.getFullYear() + ' ' + dNow.getHours() + ':' + dNow.getMinutes()));
+	// xhttp.open("POST", "no url", true);
+	// xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	// xhttp.send("z9800="+localStorage.getItem("z0564")+"&z5649=-2&z7613="+escape(dNow.getDate() + '/' + dNow.getMonth() + '/' + dNow.getFullYear() + ' ' + dNow.getHours() + ':' + dNow.getMinutes()));
 }
 
 function roundRect(x, y, width, height, radius, fill, stroke) {
